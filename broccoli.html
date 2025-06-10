@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소문 변형 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #66bb6a 0%, #8bc34a 30%, #cddc39 100%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            border-left: 3px solid rgba(102, 187, 106, 0.3);
+            border-right: 3px solid rgba(102, 187, 106, 0.3);
+            box-shadow: 0 0 60px rgba(46, 125, 50, 0.2);
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .welcome-page h1 {
+            color: #2e7d32;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-text {
+            color: #424242;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .welcome-text p {
+            margin-bottom: 8px;
+        }
+
+        .welcome-text br {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(76, 175, 80, 0.4);
+            background: linear-gradient(135deg, #66bb6a, #81c784);
+        }
+
+        .input-field {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #c8e6c9;
+            border-radius: 50px;
+            margin: 20px auto;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            background: white;
+        }
+
+        .name-page h2 {
+            color: #2e7d32;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .game-page {
+            align-items: stretch;
+            text-align: left;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .game-header h2 {
+            color: #2e7d32;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .game-header .player-name {
+            color: #4caf50;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .original-rumor {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #ff9800;
+            border: 2px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .original-rumor h3 {
+            color: #e65100;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .original-rumor p {
+            color: #333;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .rumors-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .rumor-item {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(139, 195, 74, 0.05));
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4caf50;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .rumor-item:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .rumor-author {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .rumor-text {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(139, 195, 74, 0.05));
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .input-section h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .current-rumor {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(76, 175, 80, 0.2);
+            font-style: italic;
+            color: #424242;
+        }
+
+        .textarea-field {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .textarea-field:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            background: white;
+        }
+
+        .submit-section {
+            text-align: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #757575;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rumor-item {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .warning {
+            color: #d32f2f;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .page-indicator {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        /* 완료 페이지 스타일 */
+        .completion-page {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .completion-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .completion-title {
+            font-size: 2.5rem;
+            color: #2e7d32;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #4caf50, #66bb6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: bounce 2s infinite;
+        }
+
+        .completion-message {
+            font-size: 1.3rem;
+            color: #424242;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .thank-you {
+            font-size: 1.5rem !important;
+            font-weight: bold;
+            color: #2e7d32;
+            animation: pulse 2s infinite;
+        }
+
+        /* 떠다니는 이모지 애니메이션 */
+        .floating-emojis {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .emoji:nth-child(1) { left: 10%; top: 10%; }
+        .emoji:nth-child(2) { left: 85%; top: 15%; }
+        .emoji:nth-child(3) { left: 15%; top: 80%; }
+        .emoji:nth-child(4) { left: 80%; top: 70%; }
+        .emoji:nth-child(5) { left: 50%; top: 5%; }
+        .emoji:nth-child(6) { left: 5%; top: 50%; }
+        .emoji:nth-child(7) { left: 90%; top: 45%; }
+        .emoji:nth-child(8) { left: 45%; top: 90%; }
+
+        /* 축하 반짝이 애니메이션 */
+        .celebration-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: sparkle 3s linear infinite;
+        }
+
+        .sparkle1 { left: 20%; top: 20%; animation-delay: 0s; }
+        .sparkle2 { left: 70%; top: 30%; animation-delay: 0.5s; }
+        .sparkle3 { left: 30%; top: 60%; animation-delay: 1s; }
+        .sparkle4 { left: 80%; top: 80%; animation-delay: 1.5s; }
+        .sparkle5 { left: 60%; top: 15%; animation-delay: 2s; }
+        .sparkle6 { left: 15%; top: 75%; animation-delay: 2.5s; }
+
+        /* 애니메이션 키프레임 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        @keyframes sparkle {
+            0% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 스크롤 스무딩 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 버튼 그룹 스타일 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+        }
+
+        .next-btn:hover {
+            background: linear-gradient(135deg, #ffb74d, #ffcc02);
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+        }
+
+        .complete-btn:hover {
+            background: linear-gradient(135deg, #ba68c8, #ce93d8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-indicator" id="pageIndicator">1 / 7</div>
+
+        <!-- 안내 페이지 -->
+        <div class="page welcome-page" id="welcomePage">
+            <h1>🥦 소문 변형 게임</h1>
+            <div class="welcome-text">
+                <p><strong>안녕하세요. 박지혜입니다.</strong></p>
+                <p>먼저 관심을 가져주셔서 정말 감사합니다.</p>
+                <br>
+                <p>과제를 위해서 소문을 조금 퍼트려볼까 하는데요!</p>
+                <p>여러분이 지금부터 소문을 퍼뜨려 주시면 됩니다.</p>
+                <br>
+                <p>먼저 방명록에 이름을 작성해 주세요. 닉네임도 좋습니다!</p>
+                <p>마음에 드는 소문을 골르고, 소문의 문장 중 마음에 들지 않는 단어 하나를 골라 바꿔 주세요.</p>
+                <p>이때 문장의 의미는 고려하지 않아도 됩니다.</p>
+                <br>
+                <p>한 단어를 바꾸는 여러분의 작은 선택이 어떤 파장을 불러일으킬지 궁금합니다.</p>
+                <p><strong>가능한 한 많이 소문을 퍼뜨려 주세요!</strong></p>
+            </div>
+            <button class="btn" onclick="scrollToNext()">시작하기 🥦</button>
+        </div>
+
+        <!-- 이름 입력 페이지 -->
+        <div class="page name-page" id="namePage">
+            <h2>📋 방명록</h2>
+            <p style="color: #424242; margin-bottom: 30px;">이름 또는 닉네임을 입력해주세요</p>
+            <input type="text" class="input-field" id="nameInput" placeholder="이름을 입력하세요" maxlength="20">
+            <div class="warning" id="nameWarning">이름을 입력해주세요!</div>
+            <button class="btn" onclick="startGame()">게임 시작 🤫</button>
+        </div>
+
+        <!-- 첫 번째 속삭임 -->
+        <div class="page game-page" id="gamePage1">
+            <div class="game-header">
+                <h2>🤫 첫 번째 속삭임</h2>
+                <div class="player-name" id="playerWelcome1"></div>
+            </div>
+
+            <div class="original-rumor">
+                <h3>🔊 기본 소문</h3>
+                <p id="originalRumor1">박지혜가 내일 학교에 오지 않는다고 한다.</p>
+            </div>
+
+            <div class="rumors-list" id="rumorsList1">
+                <div class="empty-state">
+                    아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                    첫 번째 소문을 만들어보세요! 💥
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h4>💥 소문을 변형해보세요</h4>
+                <div class="current-rumor" id="currentRumor1">
+                    현재 소문: "박지혜가 내일 학교에 오지 않는다고 한다."
+                </div>
+                <textarea class="textarea-field" id="rumorInput1" placeholder="위 소문에서 단어 하나를 바꿔서 새로운 소문을 만들어보세요..."></textarea>
+                <div class="warning" id="rumorWarning1">소문을 입력해주세요!</div>
+                <div class="submit-section">
+                    <div class="button-group">
+                        <button class="btn" onclick="submitRumor(1)">소문 퍼뜨리기 🔊</button>
+                        <button class="btn next-btn" onclick="scrollToNext()">다음 속삭임 💥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 두 번째 속삭임 -->
+        <div class="page game-page" id="gamePage2">
+            <div class="game-header">
+                <h2>🤫 두 번째 속삭임</h2>
+                <div class="player-name" id="playerWelcome2"></div>
+            </div>
+
+            <div class="original-rumor">
+                <h3>🔊 기본 소문</h3>
+                <p id="originalRumor2">박지혜가 내일 학교에 오지 않는다고 한다.</p>
+            </div>
+
+            <div class="rumors-list" id="rumorsList2">
+                <div class="empty-state">
+                    아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                    첫 번째 소문을 만들어보세요! 💥
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h4>💥 소문을 변형해보세요</h4>
+                <div class="current-rumor" id="currentRumor2">
+                    현재 소문: "박지혜가 내일 학교에 오지 않는다고 한다."
+                </div>
+                <textarea class="textarea-field" id="rumorInput2" placeholder="위 소문에서 단어 하나를 바꿔서 새로운 소문을 만들어보세요..."></textarea>
+                <div class="warning" id="rumorWarning2">소문을 입력해주세요!</div>
+                <div class="submit-section">
+                    <div class="button-group">
+                        <button class="btn" onclick="submitRumor(2)">소문 퍼뜨리기 🔊</button>
+                        <button class="btn next-btn" onclick="scrollToNext()">다음 속삭임 💥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 세 번째 속삭임 -->
+        <div class="page game-page" id="gamePage3">
+            <div class="game-header">
+                <h2>🤫 세 번째 속삭임</h2>
+                <div class="player-name" id="playerWelcome3"></div>
+            </div>
+
+            <div class="original-rumor">
+                <h3>🔊 기본 소문</h3>
+                <p id="originalRumor3">박지혜가 내일 학교에 오지 않는다고 한다.</p>
+            </div>
+
+            <div class="rumors-list" id="rumorsList3">
+                <div class="empty-state">
+                    아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                    첫 번째 소문을 만들어보세요! 💥
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h4>💥 소문을 변형해보세요</h4>
+                <div class="current-rumor" id="currentRumor3">
+                    현재 소문: "박지혜가 내일 학교에 오지 않는다고 한다."
+                </div>
+                <textarea class="textarea-field" id="rumorInput3" placeholder="위 소문에서 단어 하나를 바꿔서 새로운 소문을 만들어보세요..."></textarea>
+                <div class="warning" id="rumorWarning3">소문을 입력해주세요!</div>
+                <div class="submit-section">
+                    <div class="button-group">
+                        <button class="btn" onclick="submitRumor(3)">소문 퍼뜨리기 🔊</button>
+                        <button class="btn next-btn" onclick="scrollToNext()">다음 속삭임 💥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 네 번째 속삭임 -->
+        <div class="page game-page" id="gamePage4">
+            <div class="game-header">
+                <h2>🤫 네 번째 속삭임</h2>
+                <div class="player-name" id="playerWelcome4"></div>
+            </div>
+
+            <div class="original-rumor">
+                <h3>🔊 기본 소문</h3>
+                <p id="originalRumor4">박지혜가 내일 학교에 오지 않는다고 한다.</p>
+            </div>
+
+            <div class="rumors-list" id="rumorsList4">
+                <div class="empty-state">
+                    아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                    첫 번째 소문을 만들어보세요! 💥
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h4>💥 소문을 변형해보세요</h4>
+                <div class="current-rumor" id="currentRumor4">
+                    현재 소문: "박지혜가 내일 학교에 오지 않는다고 한다."
+                </div>
+                <textarea class="textarea-field" id="rumorInput4" placeholder="위 소문에서 단어 하나를 바꿔서 새로운 소문을 만들어보세요..."></textarea>
+                <div class="warning" id="rumorWarning4">소문을 입력해주세요!</div>
+                <div class="submit-section">
+                    <div class="button-group">
+                        <button class="btn" onclick="submitRumor(4)">소문 퍼뜨리기 🔊</button>
+                        <button class="btn next-btn" onclick="scrollToNext()">다음 속삭임 💥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 다섯 번째 속삭임 -->
+        <div class="page game-page" id="gamePage5">
+            <div class="game-header">
+                <h2>🤫 다섯 번째 속삭임</h2>
+                <div class="player-name" id="playerWelcome5"></div>
+            </div>
+
+            <div class="original-rumor">
+                <h3>🔊 기본 소문</h3>
+                <p id="originalRumor5">박지혜가 내일 학교에 오지 않는다고 한다.</p>
+            </div>
+
+            <div class="rumors-list" id="rumorsList5">
+                <div class="empty-state">
+                    아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                    첫 번째 소문을 만들어보세요! 💥
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h4>💥 소문을 변형해보세요</h4>
+                <div class="current-rumor" id="currentRumor5">
+                    현재 소문: "박지혜가 내일 학교에 오지 않는다고 한다."
+                </div>
+                <textarea class="textarea-field" id="rumorInput5" placeholder="위 소문에서 단어 하나를 바꿔서 새로운 소문을 만들어보세요..."></textarea>
+                <div class="warning" id="rumorWarning5">소문을 입력해주세요!</div>
+                <div class="submit-section">
+                    <div class="button-group">
+                        <button class="btn" onclick="submitRumor(5)">소문 퍼뜨리기 🔊</button>
+                        <button class="btn complete-btn" onclick="showCompletion()">완료하기 ✨</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 완료 페이지 -->
+        <div class="page completion-page" id="completionPage">
+            <div class="completion-content">
+                <div class="floating-emojis">
+                    <div class="emoji" style="animation-delay: 0s;">🥦</div>
+                    <div class="emoji" style="animation-delay: 0.5s;">🤫</div>
+                    <div class="emoji" style="animation-delay: 1s;">🔊</div>
+                    <div class="emoji" style="animation-delay: 1.5s;">💥</div>
+                    <div class="emoji" style="animation-delay: 2s;">✨</div>
+                    <div class="emoji" style="animation-delay: 2.5s;">🎉</div>
+                    <div class="emoji" style="animation-delay: 3s;">💫</div>
+                    <div class="emoji" style="animation-delay: 3.5s;">🌟</div>
+                </div>
+                
+                <h1 class="completion-title">🎊 소문 퍼뜨리기 완료! 🎊</h1>
+                
+                <div class="completion-message">
+                    <p>여러분의 작은 선택이 어떤 결과를 만들지</p>
+                    <p>계속 지켜봐 주세요!</p>
+                    <br>
+                    <p class="thank-you">감사합니다. 🥦</p>
+                </div>
+                
+                <div class="celebration-animation">
+                    <div class="sparkle sparkle1">✨</div>
+                    <div class="sparkle sparkle2">💫</div>
+                    <div class="sparkle sparkle3">⭐</div>
+                    <div class="sparkle sparkle4">🌟</div>
+                    <div class="sparkle sparkle5">✨</div>
+                    <div class="sparkle sparkle6">💫</div>
+                </div>
+                
+                <button class="btn" onclick="restartGame()" style="margin-top: 40px; background: linear-gradient(135deg, #4caf50, #66bb6a);">
+                    다시 시작하기 🔄
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerName = '';
+        let rumors = {
+            1: [], 2: [], 3: [], 4: [], 5: []
+        };
+        const originalRumor = "박지혜가 내일 학교에 오지 않는다고 한다.";
+        let currentPageIndex = 0;
+        const pages = ['welcomePage', 'namePage', 'gamePage1', 'gamePage2', 'gamePage3', 'gamePage4', 'gamePage5', 'completionPage'];
+
+        function updatePageIndicator() {
+            document.getElementById('pageIndicator').textContent = `${currentPageIndex + 1} / ${pages.length}`;
+        }
+
+        function scrollToNext() {
+            if (currentPageIndex < pages.length - 1) {
+                currentPageIndex++;
+                const nextPage = document.getElementById(pages[currentPageIndex]);
+                nextPage.scrollIntoView({ behavior: 'smooth' });
+                updatePageIndicator();
+                
+                // 이름 입력 후 게임 페이지로 이동할 때 플레이어 정보 설정
+                if (currentPageIndex >= 2) {
+                    updateCurrentRumor(currentPageIndex - 1);
+                }
+            }
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('nameInput');
+            const nameWarning = document.getElementById('nameWarning');
+            
+            if (!nameInput.value.trim()) {
+                nameWarning.style.display = 'block';
+                nameInput.focus();
+                return;
+            }
+
+            playerName = nameInput.value.trim();
+            nameWarning.style.display = 'none';
+            
+            // 모든 페이지에 플레이어 이름 설정
+            for(let i = 1; i <= 5; i++) {
+                document.getElementById(`playerWelcome${i}`).textContent = `${playerName}님, 환영합니다! 🎉`;
+            }
+            
+            scrollToNext();
+        }
+
+        function updateRumorsList(pageNum) {
+            const rumorsList = document.getElementById(`rumorsList${pageNum}`);
+            
+            if (rumors[pageNum].length === 0) {
+                rumorsList.innerHTML = `
+                    <div class="empty-state">
+                        아직 아무도 소문을 퍼뜨리지 않았습니다. 🥦<br>
+                        첫 번째 소문을 만들어보세요! 💥
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            rumors[pageNum].forEach((rumor, index) => {
+                html += `
+                    <div class="rumor-item">
+                        <div class="rumor-author">${index + 1}. ${rumor.author}</div>
+                        <div class="rumor-text">"${rumor.text}"</div>
+                    </div>
+                `;
+            });
+            
+            rumorsList.innerHTML = html;
+            rumorsList.scrollTop = rumorsList.scrollHeight;
+        }
+
+        function updateCurrentRumor(pageNum) {
+            const currentRumorDiv = document.getElementById(`currentRumor${pageNum}`);
+            const currentText = rumors[pageNum].length > 0 ? rumors[pageNum][rumors[pageNum].length - 1].text : originalRumor;
+            currentRumorDiv.textContent = `현재 소문: "${currentText}"`;
+        }
+
+        function submitRumor(pageNum) {
+            const rumorInput = document.getElementById(`rumorInput${pageNum}`);
+            const rumorWarning = document.getElementById(`rumorWarning${pageNum}`);
+            
+            if (!rumorInput.value.trim()) {
+                rumorWarning.style.display = 'block';
+                rumorInput.focus();
+                return;
+            }
+
+            const newRumor = {
+                author: playerName,
+                text: rumorInput.value.trim(),
+                timestamp: new Date()
+            };
+
+            rumors[pageNum].push(newRumor);
+            rumorInput.value = '';
+            rumorWarning.style.display = 'none';
+            
+            updateRumorsList(pageNum);
+            updateCurrentRumor(pageNum);
+            
+            // 성공 메시지
+            const btn = document.querySelector(`#gamePage${pageNum} .submit-section .btn`);
+            const originalText = btn.textContent;
+            btn.textContent = '소문이 퍼졌습니다! ✨';
+            btn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = 'linear-gradient(135deg, #4caf50, #66bb6a)';
+            }, 2000);
+        }
+
+        function showCompletion() {
+            currentPageIndex = pages.length - 1;
+            const completionPage = document.getElementById('completionPage');
+            completionPage.scrollIntoView({ behavior: 'smooth' });
+            updatePageIndicator();
+            
+            // 페이지 인디케이터 숨기기
+            setTimeout(() => {
+                document.getElementById('pageIndicator').style.display = 'none';
+            }, 1000);
+        }
+
+        function restartGame() {
+            // 모든 데이터 초기화
+            playerName = '';
+            rumors = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+            currentPageIndex = 0;
+            
+            // 모든 입력 필드 초기화
+            document.getElementById('nameInput').value = '';
+            for(let i = 1; i <= 5; i++) {
+                document.getElementById(`rumorInput${i}`).value = '';
+                document.getElementById(`rumorWarning${i}`).style.display = 'none';
+                updateRumorsList(i);
+                updateCurrentRumor(i);
+            }
+            document.getElementById('nameWarning').style.display = 'none';
+            
+            // 첫 페이지로 돌아가기
+            const welcomePage = document.getElementById('welcomePage');
+            welcomePage.scrollIntoView({ behavior: 'smooth' });
+            
+            // 페이지 인디케이터 다시 보이기
+            document.getElementById('pageIndicator').style.display = 'block';
+            updatePageIndicator();
+        }
+
+        // Enter 키 이벤트 처리
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+
+        // 모든 텍스트 입력 필드에 Enter 키 이벤트 추가
+        for(let i = 1; i <= 5; i++) {
+            document.getElementById(`rumorInput${i}`).addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submitRumor(i);
+                }
+            });
+
+            // 입력 시 경고 메시지 제거
+            document.getElementById(`rumorInput${i}`).addEventListener('input', function() {
+                document.getElementById(`rumorWarning${i}`).style.display = 'none';
+            });
+        }
+
+        // 이름 입력 시 경고 메시지 제거
+        document.getElementById('nameInput').addEventListener('input', function() {
+            document.getElementById('nameWarning').style.display = 'none';
+        });
+
+        // 스크롤 이벤트로 현재 페이지 추적
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+            
+            pages.forEach((pageId, index) => {
+                const page = document.getElementById(pageId);
+                const pageTop = page.offsetTop;
+                const pageBottom = pageTop + page.offsetHeight;
+                
+                if (scrollPosition >= pageTop && scrollPosition < pageBottom) {
+                    if (currentPageIndex !== index) {
+                        currentPageIndex = index;
+                        updatePageIndicator();
+                    }
+                }
+            });
+        });
+
+        // 초기 페이지 인디케이터 설정
+        updatePageIndicator();
+    </script>
+</body>
+</html>
